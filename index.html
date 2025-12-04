@@ -213,8 +213,8 @@
                 bottle.position.y = mouse.y * 6;
             }
             
-            // Update Frugon position with 1 second delay (smooth interpolation)
-            const delayFactor = 0.002; // Approximates 1 second delay
+            // Update Frugon position with faster delay
+            const delayFactor = 0.01; // Faster delay (was 0.002)
             frugonTargetPos.x = bottleScreenPos.x + 200; // Offset to the right of bottle
             frugonTargetPos.y = bottleScreenPos.y;
             
