@@ -111,12 +111,40 @@
         pointLight.position.set(0, 5, 0);
         scene.add(pointLight);
 
+        // Create glass material
+        const glassMaterial = new THREE.MeshPhysicalMaterial({
+            color: 0x88ccff,
+            transparent: true,
+            opacity: 0.3,
+            roughness: 0.1,
+            metalness: 0.1,
+            transmission: 0.9,
+            thickness: 0.5,
+            clearcoat: 1.0,
+            clearcoatRoughness: 0.1,
+            envMapIntensity: 1,
+        });
+
         // Load GLTF model
         const loader = new THREE.GLTFLoader();
         loader.load(
             'frugo.glb',
             function(gltf) {
                 bottle = gltf.scene;
+                
+                // Apply glass material to meshes without textures
+                bottle.traverse(function(child) {
+                    if (child.isMesh) {
+                        // Check if material has a texture map
+                        const hasTexture = child.material.map !== null && child.material.map !== undefined;
+                        
+                        // If no texture, apply glass material
+                        if (!hasTexture) {
+                            child.material = glassMaterial;
+                        }
+                    }
+                });
+                
                 scene.add(bottle);
                 loadingEl.style.display = 'none';
                 
