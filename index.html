@@ -111,31 +111,17 @@
         pointLight.position.set(0, 5, 0);
         scene.add(pointLight);
 
-        // Create glass material
-        const glassMaterial = new THREE.MeshPhysicalMaterial({
-            color: 0x88ccff,
-            transparent: true,
-            opacity: 0.3,
-            roughness: 0.1,
-            metalness: 0.1,
-            transmission: 0.9,
-            thickness: 0.5,
-            clearcoat: 1.0,
-            clearcoatRoughness: 0.1,
-            envMapIntensity: 1,
-        });
-
-        // Create green liquid material
-        const liquidMaterial = new THREE.MeshPhysicalMaterial({
+        // Create green glass material
+        const greenGlassMaterial = new THREE.MeshPhysicalMaterial({
             color: 0x2ecc71,
             transparent: true,
-            opacity: 0.7,
+            opacity: 0.8,
             roughness: 0.2,
-            metalness: 0.1,
-            transmission: 0.3,
+            metalness: 0.3,
+            clearcoat: 1.0,
+            clearcoatRoughness: 0.1,
+            reflectivity: 0.9,
         });
-
-        let liquidMesh = null;
 
         // Load GLTF model
         const loader = new THREE.GLTFLoader();
@@ -144,15 +130,15 @@
             function(gltf) {
                 bottle = gltf.scene;
                 
-                // Apply glass material to meshes without textures
+                // Apply green glass material to meshes without textures
                 bottle.traverse(function(child) {
                     if (child.isMesh) {
                         // Check if material has a texture map
                         const hasTexture = child.material.map !== null && child.material.map !== undefined;
                         
-                        // If no texture, apply glass material
+                        // If no texture, apply green glass material
                         if (!hasTexture) {
-                            child.material = glassMaterial;
+                            child.material = greenGlassMaterial;
                         }
                     }
                 });
@@ -169,18 +155,6 @@
                 const maxDim = Math.max(size.x, size.y, size.z);
                 const scale = 5 / maxDim;
                 bottle.scale.set(scale, scale, scale);
-
-                // Create liquid inside the bottle
-                const bottleSize = box.getSize(new THREE.Vector3());
-                const liquidGeometry = new THREE.CylinderGeometry(
-                    bottleSize.x * 0.35, 
-                    bottleSize.x * 0.4, 
-                    bottleSize.y * 0.6, 
-                    32
-                );
-                liquidMesh = new THREE.Mesh(liquidGeometry, liquidMaterial);
-                liquidMesh.position.y = -bottleSize.y * 0.15;
-                bottle.add(liquidMesh);
             },
             function(progress) {
                 console.log('Loading:', (progress.loaded / progress.total * 100) + '%');
@@ -217,17 +191,6 @@
                 // Slight position movement based on mouse
                 bottle.position.x = mouse.x * 0.5;
                 bottle.position.y = mouse.y * 0.3;
-
-                // Interactive liquid movement
-                if (liquidMesh) {
-                    // Liquid tilts opposite to bottle rotation for realistic effect
-                    liquidMesh.rotation.x = -currentRotation.x * 0.3;
-                    liquidMesh.rotation.z = -currentRotation.y * 0.2;
-                    
-                    // Subtle wave animation
-                    const time = Date.now() * 0.001;
-                    liquidMesh.position.y += Math.sin(time * 2 + mouse.x * 2) * 0.002;
-                }
             }
 
             renderer.render(scene, camera);
