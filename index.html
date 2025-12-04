@@ -14,7 +14,7 @@
         body {
             font-family: 'Futura', 'Arial Narrow', sans-serif;
             overflow: hidden;
-            background-color: #AC87A0;
+            background-color: #ce3368;
         }
         
         #container {
@@ -34,6 +34,15 @@
             font-stretch: extra-condensed;
             text-align: center;
             z-index: 10;
+        }
+        
+        #frugon {
+            position: absolute;
+            width: 150px;
+            height: auto;
+            pointer-events: none;
+            z-index: 5;
+            transition: none;
         }
         
         .loading {
@@ -59,6 +68,7 @@
 </head>
 <body>
     <h1 class="title">FRUGO</h1>
+    <img id="frugon" src="frugon.png" alt="Frugon character">
     <div id="container"></div>
     <div id="loading" class="loading">Loading model...</div>
     <div id="error" class="error" style="display: none;"></div>
@@ -71,14 +81,19 @@
         let mouse = { x: 0, y: 0 };
         let targetRotation = { x: 0, y: 0 };
         let currentRotation = { x: 0, y: 0 };
+        let bottleScreenPos = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+        let frugonPos = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+        let frugonTargetPos = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+        let walkOffset = 0;
         
         const container = document.getElementById('container');
         const loadingEl = document.getElementById('loading');
         const errorEl = document.getElementById('error');
+        const frugonEl = document.getElementById('frugon');
 
         // Scene setup
         scene = new THREE.Scene();
-        scene.background = new THREE.Color(0xAC87A0);
+        scene.background = new THREE.Color(0xce3368);
 
         // Camera setup
         camera = new THREE.PerspectiveCamera(
@@ -164,6 +179,10 @@
             
             targetRotation.y = mouse.x * Math.PI;
             targetRotation.x = mouse.y * Math.PI * 0.5;
+            
+            // Update bottle screen position based on cursor
+            bottleScreenPos.x = e.clientX;
+            bottleScreenPos.y = e.clientY;
         });
 
         // Animation loop
@@ -178,10 +197,35 @@
                 bottle.rotation.x = currentRotation.x;
                 bottle.rotation.y = currentRotation.y;
 
-                // Slight position movement based on mouse
-                bottle.position.x = mouse.x * 0.5;
-                bottle.position.y = mouse.y * 0.3;
+                // Follow cursor with bottle position
+                bottle.position.x = mouse.x * 2;
+                bottle.position.y = mouse.y * 1.5;
             }
+            
+            // Update Frugon position with 1 second delay (smooth interpolation)
+            const delayFactor = 0.002; // Approximates 1 second delay
+            frugonTargetPos.x = bottleScreenPos.x + 200; // Offset to the right of bottle
+            frugonTargetPos.y = bottleScreenPos.y;
+            
+            // Smooth movement towards target
+            frugonPos.x += (frugonTargetPos.x - frugonPos.x) * delayFactor;
+            frugonPos.y += (frugonTargetPos.y - frugonPos.y) * delayFactor;
+            
+            // Calculate movement speed for walking animation
+            const dx = frugonTargetPos.x - frugonPos.x;
+            const dy = frugonTargetPos.y - frugonPos.y;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            
+            // Walking animation - wiggle up and down
+            if (distance > 5) { // Only animate when moving
+                walkOffset = Math.sin(Date.now() * 0.01) * 10;
+            } else {
+                walkOffset = 0;
+            }
+            
+            // Apply position to Frugon image
+            frugonEl.style.left = (frugonPos.x - 75) + 'px'; // Center the image
+            frugonEl.style.top = (frugonPos.y - 75 + walkOffset) + 'px';
 
             renderer.render(scene, camera);
         }
