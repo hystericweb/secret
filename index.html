@@ -20,8 +20,15 @@
         #container {
             width: 100vw;
             height: 100vh;
-            position: relative;
+            position: absolute;
+            top: 0;
+            left: 0;
             z-index: 5;
+            pointer-events: none;
+        }
+        
+        #container canvas {
+            pointer-events: none;
         }
         
         .title {
@@ -45,6 +52,8 @@
             pointer-events: none;
             z-index: 1;
             transition: none;
+            top: 0;
+            left: 0;
         }
         
         .loading {
@@ -95,7 +104,7 @@
 
         // Scene setup
         scene = new THREE.Scene();
-        scene.background = new THREE.Color(0xce3368);
+        // No background color - transparent
 
         // Camera setup
         camera = new THREE.PerspectiveCamera(
@@ -104,10 +113,10 @@
             0.1,
             1000
         );
-        camera.position.z = 8;
+        camera.position.z = 15;
 
         // Renderer setup
-        renderer = new THREE.WebGLRenderer({ antialias: true });
+        renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.shadowMap.enabled = true;
         container.appendChild(renderer.domElement);
@@ -160,7 +169,7 @@
                 
                 const size = box.getSize(new THREE.Vector3());
                 const maxDim = Math.max(size.x, size.y, size.z);
-                const scale = 5 / maxDim;
+                const scale = 2.5 / maxDim; // 2x smaller
                 bottle.scale.set(scale, scale, scale);
             },
             function(progress) {
