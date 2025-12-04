@@ -14,7 +14,7 @@
         body {
             font-family: 'Futura', 'Arial Narrow', sans-serif;
             overflow: hidden;
-            background-color: #f5d5d8;
+            background-color: #c244b5;
         }
         
         #container {
@@ -78,7 +78,7 @@
 
         // Scene setup
         scene = new THREE.Scene();
-        scene.background = new THREE.Color(0xf5d5d8);
+        scene.background = new THREE.Color(0xc244b5);
 
         // Camera setup
         camera = new THREE.PerspectiveCamera(
@@ -111,16 +111,10 @@
         pointLight.position.set(0, 5, 0);
         scene.add(pointLight);
 
-        // Create green glass material
-        const greenGlassMaterial = new THREE.MeshPhysicalMaterial({
-            color: 0x29ad00,
-            transparent: true,
-            opacity: 0.8,
-            roughness: 0.2,
-            metalness: 0.3,
-            clearcoat: 1.0,
-            clearcoatRoughness: 0.1,
-            reflectivity: 0.9,
+        // Create cel-shaded green material
+        const greenGlassMaterial = new THREE.MeshToonMaterial({
+            color: 0x49ab3a,
+            transparent: false,
         });
 
         // Load GLTF model
